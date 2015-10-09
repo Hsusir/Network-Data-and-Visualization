@@ -1,0 +1,111 @@
+---
+title: "Network Data and Visualization"
+author: "許sir"
+---
+
+
+### [.設定所需的函式庫(libraries)以及載入資料]
+```{r message=FALSE, warning=FALSE, results='hide'}
+#install.packages("sna")
+#install.packages("igraph")
+
+library(sna)
+library(igraph)
+
+setwd("D:/Rdata Practice/SNA/Lab 1")
+
+```
+
+## PART 1.Import from csv file: Matrix format
+
+### 1-1.Using sna package
+```{r message=FALSE, warning=FALSE}
+data<- "sample_adjmatrix.csv"
+el<-read.table(data, header=T, row.names=1, sep=",") #讀進來是dataframe型態
+m=as.matrix(el) #要轉成Matrix型態
+m
+
+gplot(m, displaylabels=TRUE)
+```
+
+### 1-2.using igraph package
+```{r message=FALSE, warning=FALSE}
+g1=graph.adjacency(m,mode="undirected",weighted=NULL)
+class(g1); plot(g1)
+```
+
+
+## PART 2.Import from csv file: edge-list format
+
+### 2-1.Using sna package
+```{r message=FALSE, warning=FALSE}
+data2<- "n2.csv"
+(el2<-read.table(data2, header=T, sep=","))
+(m2=as.matrix(el2))
+
+attr(m2,"n")<-7 # number of nodes
+attr(m2,"vnames")<-letters[1:7] # names of each node
+gplot(m2,displaylabels=TRUE)
+```
+
+### 2-2.Using igraph package
+```{r message=FALSE, warning=FALSE}
+data3<- "sample_edgelist.csv"
+(el3<-read.table(data3, header=T, sep=","))
+
+# read from data.frame  (--> list)
+g3=graph.data.frame(el3,directed=FALSE) 
+class(g3); plot(g3)
+
+plot(g3, vertex.color="red",  edge.color="black", edge.arrow.size=.3, 
+     vertex.size=10, main='My Graph')
+
+
+```
+
+
+## PART 3.Manipulating the graph
+
+### 3-1.把edgelist轉成matrix
+```{r message=FALSE, warning=FALSE}
+(m3<-get.adjacency(g3))
+class(m3) # dgMatrix
+
+(m3<-as.matrix(m3)) # convert to regular matrix
+class(m3)
+
+V(g3) # vertex
+E(g3) # edge
+vcount(g3); ecount(g3) # counts of vertex and edges
+```
+
+### 3-2.graph attribute
+```{r message=FALSE, warning=FALSE}
+V(g3)$name
+V(g3)$name <- c("Tom", "Mary","John","Amy","Eric","Sam","Jack")
+V(g3)$name
+```
+
+### 3-3.weighted graph
+```{r message=FALSE, warning=FALSE}
+is.weighted(g3)
+E(g3)$weight<-runif(ecount(g3) )
+is.weighted(g3)
+E(g3)$weight
+plot(g3, vertex.color="red",  edge.color="black", edge.width=E(g3)$weight*10, vertex.size=10, main='My Weighted Graph')
+
+```
+
+
+### 3-4.Types of graphs
+```{r message=FALSE, warning=FALSE}
+g.full<- graph.full(7)
+g.ring<- graph.ring(7)
+g.tree<-graph.tree(7, children = 3, mode= "undirected")
+g.star<-graph.star(7, mode= "undirected" )
+par(mfrow=c(2,2))
+plot(g.full, main="full");plot(g.ring, main="ring");plot(g.tree, main="tree");plot(g.star, main="star")
+
+dev.off()
+```
+
